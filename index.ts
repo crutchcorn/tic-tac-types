@@ -7,7 +7,7 @@ type GenericBoard = [
 	[XOrO | "7", XOrO | "8", XOrO | "9"]
 ]
 
-type Replace<StrT extends string, FromT extends string, ToT extends string, Acc extends string = ""> = 
+type Replace<StrT extends string, FromT extends string, ToT extends string, Acc extends string = ""> =
 	StrT extends `${infer CharOneT}${infer RestOfStrT}` ? CharOneT extends FromT ?
 	Replace<RestOfStrT, FromT, ToT, `${Acc}${ToT}`> :
 	Replace<RestOfStrT, FromT, ToT, `${Acc}${CharOneT}`> :
@@ -26,8 +26,8 @@ type BoardToString<ArrArrT extends string[][], AccT extends string = ""> =
 	ArrT extends string[] ?
 	RestT extends string[][] ?
 	BoardToString<RestT, ArrToStr<ArrT, `${AccT}\n`>> :
-	AccT : AccT :
-	AccT;
+	`${AccT}\n` : `${AccT}\n` :
+	`${AccT}\n`;
 
 type ReplaceIdxWith<ArrT extends any[], Idx extends number, Val, Acc extends ArrT[number][] = []> =
 	ArrT extends [infer ItemT, ...infer RestT] ?
@@ -91,42 +91,34 @@ type FindValidBoardMove<
 ;
 
 type BoardWins = `
-
 ***
 |||
 |||
 ` | `
-
 |||
 ***
 |||
 ` | `
-
 |||
 |||
 ***
 ` | `
-
 *||
 *||
 *||
 ` | `
-
 |*|
 |*|
 |*|
 ` | `
-
 ||*
 ||*
 ||*
 ` | `
-
 *||
 |*|
 ||*
 ` | `
-
 ||*
 |*|
 *||
@@ -136,7 +128,25 @@ type BoardWins = `
  * `false` means no win
  * `true` means win
  */
-type CheckWin<BoardT extends GenericBoard, PlayerValT extends XOrO> = false;
+type InnerCheckWin<BoardT extends GenericBoard, PlayerValT extends XOrO, ComputerValT extends XOrO> =
+	Replace<BoardToString<BoardT>, ComputerValT | UserInput, "|"> extends Replace<BoardWins, "*", PlayerValT> ? true : false;
+
+const board2 = [
+	["1", "2", "3"],
+	["O", "O", "O"],
+	["7", "O", "X"],
+] satisfies GenericBoard;
+
+type Board2 = typeof board2;
+
+type BB = InnerCheckWin<Board2, "O", "X">
+
+type CheckWin<BoardT extends GenericBoard, PlayerValT extends XOrO> =
+	PlayerValT extends "O" ? "X" extends infer ComputerValT ? ComputerValT extends XOrO ?
+	InnerCheckWin<BoardT, PlayerValT, ComputerValT> : never
+	: "O" extends infer ComputerValT ? ComputerValT extends XOrO ?
+	InnerCheckWin<BoardT, PlayerValT, ComputerValT>
+	: never : never : never;
 
 type Prompt<BoardT extends GenericBoard, ValT extends AllowedGenericPromptVals> =
 	ValT extends GetBoardAllowedVals<BoardT> ?
@@ -145,8 +155,10 @@ type Prompt<BoardT extends GenericBoard, ValT extends AllowedGenericPromptVals> 
 	FindValidBoardMove<UserPlayedBoard> extends infer MoveComputerPlays ?
 	MoveComputerPlays extends GetBoardAllowedVals<UserPlayedBoard> ?
 	ReplaceBoardValWith<UserPlayedBoard, MoveComputerPlays, "O">
-	// TODO: Calculate winner
-	: "Game has ended"
+	// Game is over: Calculate winner
+	: true extends CheckWin<UserPlayedBoard, "X"> ? "Player wins!" :
+	true extends CheckWin<UserPlayedBoard, "O"> ? "Computer wins!" :
+	"Tie!"
 	: never : never
 	: never
 	: "You must input a valid number";
@@ -155,9 +167,9 @@ type Prompt<BoardT extends GenericBoard, ValT extends AllowedGenericPromptVals> 
  * ---------------------------------------------------- GAME PLAY ------------------------------------ 
  */
 const board = [
-	["1", "2", "3"],
-	["4", "5", "6"],
-	["7", "8", "9"],
+	["O", "O", "O"],
+	["O", "O", "O"],
+	["7", "O", "X"],
 ] satisfies GenericBoard;
 
 type Board = typeof board;
@@ -200,11 +212,11 @@ const egBoard = [
 	["4", "5", "6"],
 	["7", "8", "9"]
 ] satisfies GenericBoard;
-const b = "\n123\n456\n789" satisfies BoardToString<typeof egBoard>
+const b = "\n123\n456\n789\n" satisfies BoardToString<typeof egBoard>
 const c = [9, 2, 3] satisfies ReplaceIdxWith<[1, 2, 3], 0, 9>
 const d = [1, 2, 9] satisfies ReplaceIdxWith<[1, 2, 3], 2, 9>
-const e = "\n1X3\n456\n789" satisfies BoardToString<ReplaceBoardValWith<typeof egBoard, "2", "X">>
-const f = "\n123\n456\nX89" satisfies BoardToString<ReplaceBoardValWith<typeof egBoard, "7", "X">>
+const e = "\n1X3\n456\n789\n" satisfies BoardToString<ReplaceBoardValWith<typeof egBoard, "2", "X">>
+const f = "\n123\n456\nX89\n" satisfies BoardToString<ReplaceBoardValWith<typeof egBoard, "7", "X">>
 const egPlayedBoard = [
 	["X", "O", "3"],
 	["4", "5", "6"],
