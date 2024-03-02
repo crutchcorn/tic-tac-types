@@ -132,11 +132,19 @@ type InnerCheckWin<BoardT extends GenericBoard, PlayerValT extends XOrO, Compute
 	Replace<BoardToString<BoardT>, ComputerValT | UserInput, `${string}`> extends Replace<Replace<BoardWins, "*", PlayerValT>, "|", `${string}`> ? true : false;
 
 type CheckWin<BoardT extends GenericBoard, PlayerValT extends XOrO> =
-	PlayerValT extends "O" ? "X" extends infer ComputerValT ? ComputerValT extends XOrO ?
-	InnerCheckWin<BoardT, PlayerValT, ComputerValT> : never
-	: "O" extends infer ComputerValT ? ComputerValT extends XOrO ?
-	InnerCheckWin<BoardT, PlayerValT, ComputerValT>
-	: never : never : never;
+	PlayerValT extends "O" ?
+		"X" extends infer ComputerValT ?
+			ComputerValT extends XOrO ?
+				InnerCheckWin<BoardT, PlayerValT, ComputerValT> :
+			never :
+		never :
+	PlayerValT extends "X" ? 
+		"O" extends infer ComputerValT ?
+			ComputerValT extends XOrO ?
+				InnerCheckWin<BoardT, PlayerValT, ComputerValT> :
+			never :
+		never
+		: never;
 
 type Prompt<BoardT extends GenericBoard, ValT extends AllowedGenericPromptVals> =
 	ValT extends GetBoardAllowedVals<BoardT> ?
@@ -233,7 +241,7 @@ const computerWinBoard = [
 
 type ComputerWinBoard = typeof computerWinBoard;
 
-const j = false satisfies InnerCheckWin<ComputerWinBoard, "X", "O">
-const k = true satisfies InnerCheckWin<ComputerWinBoard, "O", "X">
+const j = false satisfies CheckWin<ComputerWinBoard, "X">
+const k = true satisfies CheckWin<ComputerWinBoard, "O">
 
 // TESTS ARE DONE, GO HOME NOW
