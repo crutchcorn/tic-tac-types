@@ -29,25 +29,12 @@ type ReplaceIdxWith<ArrT extends any[], Idx extends number, Val, Acc extends Arr
 	: ReplaceIdxWith<RestT, Idx, Val, [...Acc, ItemT]>
 	: Acc;
 
-// YOU WANT TESTS?! COME AND GET 
-// If any of these are red, tests are brokey
-const a = "123" satisfies ArrToStr<["1", "2", "3"]>
-const egBoard = [
-	["1", "2", "3"],
-	["4", "5", "6"],
-	["7", "8", "9"]
-] satisfies GenericBoard;
-const b = "\n123\n456\n789" satisfies BoardToString<typeof egBoard>
-const c = [9, 2, 3] satisfies ReplaceIdxWith<[1, 2, 3], 0, 9>
-// TESTS ARE DONE, GO HOME NOW
-
 type ValueOfKey<T extends object> = T[keyof T]
 
 type GetBoardAllowedVals<T extends GenericBoard> = T[number][number];
 type GetRowAllowedVals<T extends GenericBoard[number]> = T[number];
 type AllowedGenericPromptVals = GetBoardAllowedVals<GenericBoard>
 
-// TODO: Make it
 type ReplaceBoardRowWith<
 	RowT extends GenericBoard[number],
 	ValT extends GetRowAllowedVals<RowT>,
@@ -55,7 +42,7 @@ type ReplaceBoardRowWith<
 	// Do not allow numbers larger than 3, as a column can only have an index of 2
 	IdxTArr extends never[] = [],
 > = IdxTArr['length'] extends 3 ? RowT :
-	RowT[IdxTArr['length']] extends ValT ? ReplaceIdxWith<RowT, IdxTArr['length'], XorOT> :
+	ValT extends RowT[IdxTArr['length']] ? ReplaceIdxWith<RowT, IdxTArr['length'], XorOT> :
 	ReplaceBoardRowWith<RowT, ValT, XorOT, [...IdxTArr, never]>;
 
 type ReplaceBoardValWith<
@@ -68,17 +55,10 @@ type ReplaceBoardValWith<
 	IdxTArr['length'] extends 3 ?
 	BoardT :
 	BoardT[IdxTArr['length']] extends GenericBoard[number] ?
-	ReplaceIdxWith<BoardT, IdxTArr['length'], ReplaceBoardRowWith<BoardT[IdxTArr['length']], ValT, XorOT>>
-	: ReplaceBoardValWith<BoardT, ValT, XorOT, [...IdxTArr, never]>;
-
-/**
- * 	ArrT extends [infer ItemT, ...infer RestT] ?
-	ItemT extends string ?
-	RestT extends string[] ?
-	ArrToStr<RestT, `${AccT}${ItemT}`> :
-	AccT : AccT :
-	AccT;
- */
+	ReplaceIdxWith<BoardT, IdxTArr['length'], ReplaceBoardRowWith<BoardT[IdxTArr['length']], ValT, XorOT>> extends infer NewBoard ?
+	NewBoard extends GenericBoard ?
+	ReplaceBoardValWith<NewBoard, ValT, XorOT, [...IdxTArr, never]>
+	: never : never : never;
 
 type Prompt<BoardT extends GenericBoard, ValT extends AllowedGenericPromptVals> =
 	ValT extends GetBoardAllowedVals<BoardT> ?
@@ -118,3 +98,20 @@ type Board = typeof board;
  * ["X", "8", "9"]
 */
 type TurnOneBoard = Prompt<Board, "7">
+
+
+
+// YOU WANT TESTS?! COME AND GET 
+// If any of these are red, tests are brokey
+const a = "123" satisfies ArrToStr<["1", "2", "3"]>
+const egBoard = [
+	["1", "2", "3"],
+	["4", "5", "6"],
+	["7", "8", "9"]
+] satisfies GenericBoard;
+const b = "\n123\n456\n789" satisfies BoardToString<typeof egBoard>
+const c = [9, 2, 3] satisfies ReplaceIdxWith<[1, 2, 3], 0, 9>
+const d = [1, 2, 9] satisfies ReplaceIdxWith<[1, 2, 3], 2, 9>
+const e = "\n1X3\n456\n789" satisfies BoardToString<ReplaceBoardValWith<typeof egBoard, "2", "X">>
+const f = "\n123\n456\nX89" satisfies BoardToString<ReplaceBoardValWith<typeof egBoard, "7", "X">>
+// TESTS ARE DONE, GO HOME NOW
