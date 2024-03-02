@@ -60,11 +60,38 @@ type ReplaceBoardValWith<
 	ReplaceBoardValWith<NewBoard, ValT, XorOT, [...IdxTArr, never]>
 	: never : never : never;
 
+// null === no valid moves
+type FindValidRowMove<
+	RowT extends GenericBoard[number],
+	// Do not allow numbers larger than 3, as a row can only have an index of 2
+	IdxTArr extends never[] = [],
+> = IdxTArr['length'] extends 3 ?
+	null :
+	RowT[IdxTArr['length']] extends UserInput ? IdxTArr['length'] : FindValidRowMove<RowT, [...IdxTArr, never]>;
+
+type FindValidBoardMove<
+	BoardT extends GenericBoard,
+	// Do not allow numbers larger than 3, as a row can only have an index of 2
+	IdxTArr extends never[] = [],
+> = IdxTArr['length'] extends 3 ?
+	null :
+	FindValidRowMove<BoardT[IdxTArr['length']]> extends infer ValidMove ?
+	ValidMove extends null ? FindValidBoardMove<BoardT, [...IdxTArr, never]> :
+	ValidMove extends number ?
+	BoardT[IdxTArr['length']][ValidMove]
+	: never
+	: never;
+
+;
+
 type Prompt<BoardT extends GenericBoard, ValT extends AllowedGenericPromptVals> =
 	ValT extends GetBoardAllowedVals<BoardT> ?
 	ReplaceBoardValWith<BoardT, ValT, "X">
 	: "You must input a valid number";
 
+/**
+ * ---------------------------------------------------- GAME PLAY ------------------------------------ 
+ */
 const board = [
 	["1", "2", "3"],
 	["4", "5", "6"],
@@ -100,7 +127,9 @@ type Board = typeof board;
 type TurnOneBoard = Prompt<Board, "7">
 
 
-
+/**
+ * ---------------------------------------------------- TESTS ------------------------------------ 
+ */
 // YOU WANT TESTS?! COME AND GET 
 // If any of these are red, tests are brokey
 const a = "123" satisfies ArrToStr<["1", "2", "3"]>
@@ -114,4 +143,19 @@ const c = [9, 2, 3] satisfies ReplaceIdxWith<[1, 2, 3], 0, 9>
 const d = [1, 2, 9] satisfies ReplaceIdxWith<[1, 2, 3], 2, 9>
 const e = "\n1X3\n456\n789" satisfies BoardToString<ReplaceBoardValWith<typeof egBoard, "2", "X">>
 const f = "\n123\n456\nX89" satisfies BoardToString<ReplaceBoardValWith<typeof egBoard, "7", "X">>
+const egPlayedBoard = [
+	["X", "O", "3"],
+	["4", "5", "6"],
+	["7", "8", "9"]
+] satisfies GenericBoard;
+
+const g = "3" satisfies FindValidBoardMove<typeof egPlayedBoard>
+
+const egMorePlayedBoard = [
+	["X", "O", "X"],
+	["O", "X", "6"],
+	["7", "8", "9"]
+] satisfies GenericBoard;
+
+const h = "6" satisfies FindValidBoardMove<typeof egMorePlayedBoard>
 // TESTS ARE DONE, GO HOME NOW
