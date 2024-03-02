@@ -23,21 +23,83 @@ type BoardToString<ArrArrT extends string[][], AccT extends string = ""> =
 	AccT : AccT :
 	AccT;
 
+type ReplaceIdxWith<ArrT extends any[], Idx extends number, Val, Acc extends ArrT[number][] = []> =
+	ArrT extends [infer ItemT, ...infer RestT] ?
+	Acc['length'] extends Idx ? [...Acc, Val, ...RestT]
+	: ReplaceIdxWith<RestT, Idx, Val, [...Acc, ItemT]>
+	: Acc;
+
 // YOU WANT TESTS?! COME AND GET 
+// If any of these are red, tests are brokey
 const a = "123" satisfies ArrToStr<["1", "2", "3"]>
 const egBoard = [
-["1", "2", "3"],
-["4", "5", "6"],
-["7", "8", "9"]
+	["1", "2", "3"],
+	["4", "5", "6"],
+	["7", "8", "9"]
 ] satisfies GenericBoard;
 const b = "\n123\n456\n789" satisfies BoardToString<typeof egBoard>
+const c = [9,2,3] satisfies ReplaceIdxWith<[1, 2, 3], 0, 9>
 // TESTS ARE DONE, GO HOME NOW
 
 type ValueOfKey<T extends object> = T[keyof T]
 
-type AllowedPromptVals = GenericBoard[number][number];
+type GetBoardAllowedVals<T extends GenericBoard> = T[number][number];
+type GetRowAllowedVals<T extends GenericBoard[number]> = T[number];
+type AllowedGenericPromptVals = GetBoardAllowedVals<GenericBoard>
 
-type Prompt<BoardT extends GenericBoard, Val extends AllowedPromptVals> = BoardT;
+// TODO: Make it
+type ReplaceBoardRowWith<
+	RowT extends GenericBoard[number],
+	ValT extends GetRowAllowedVals<RowT>,
+	XorOT extends XOrO,
+	IdxT extends 0 | 1 | 2 | 3 = 0,
+> = IdxT extends 3 ? RowT :
+	RowT[IdxT] extends ValT ? RowT[IdxT] : RowT;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+type ReplaceBoardValWith<
+	BoardT extends GenericBoard,
+	ValT extends GetBoardAllowedVals<BoardT>,
+	XorOT extends XOrO,
+	AccBoard extends GenericBoard = GenericBoard,
+	IdxT extends 0 | 1 | 2 = 0,
+> =
+	BoardT extends [infer RowT, ...infer OtherRowsT] ?
+	RowT
+		AccBoard;
+
+
+/**
+ * 	ArrT extends [infer ItemT, ...infer RestT] ?
+	ItemT extends string ?
+	RestT extends string[] ?
+	ArrToStr<RestT, `${AccT}${ItemT}`> :
+	AccT : AccT :
+	AccT;
+ */
+
+type Prompt<BoardT extends GenericBoard, ValT extends AllowedGenericPromptVals> =
+	ValT extends GetBoardAllowedVals<BoardT> ?
+	BoardT
+	: "You must input a valid number";
 
 const board = [
 	["1", "2", "3"],
@@ -48,9 +110,27 @@ const board = [
 type Board = typeof board;
 
 /**
+ * User is X, game-engine is O
+ * 
+ * Game engine inserts at first `X|O` value
  * @example
  * ["1", "2", "3"],
  * ["4", "5", "6"],
  * ["X", "8", "9"]
- */
+ * 
+ * @example
+ * ["O", "2", "3"],
+ * ["4", "5", "6"],
+ * ["X", "8", "9"]
+ * 
+  * @example
+ * ["O", "X", "3"],
+ * ["4", "5", "6"],
+ * ["X", "8", "9"]
+ * 
+ * @example
+ * ["O", "X", "O"],
+ * ["4", "5", "6"],
+ * ["X", "8", "9"]
+*/
 type TurnOneBoard = Prompt<Board, "7">
