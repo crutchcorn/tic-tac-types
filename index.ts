@@ -38,7 +38,7 @@ const egBoard = [
 	["7", "8", "9"]
 ] satisfies GenericBoard;
 const b = "\n123\n456\n789" satisfies BoardToString<typeof egBoard>
-const c = [9,2,3] satisfies ReplaceIdxWith<[1, 2, 3], 0, 9>
+const c = [9, 2, 3] satisfies ReplaceIdxWith<[1, 2, 3], 0, 9>
 // TESTS ARE DONE, GO HOME NOW
 
 type ValueOfKey<T extends object> = T[keyof T]
@@ -52,40 +52,24 @@ type ReplaceBoardRowWith<
 	RowT extends GenericBoard[number],
 	ValT extends GetRowAllowedVals<RowT>,
 	XorOT extends XOrO,
-	IdxT extends 0 | 1 | 2 | 3 = 0,
-> = IdxT extends 3 ? RowT :
-	RowT[IdxT] extends ValT ? RowT[IdxT] : RowT;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	// Do not allow numbers larger than 3, as a column can only have an index of 2
+	IdxTArr extends never[] = [],
+> = IdxTArr['length'] extends 3 ? RowT :
+	RowT[IdxTArr['length']] extends ValT ? ReplaceIdxWith<RowT, IdxTArr['length'], XorOT> :
+	ReplaceBoardRowWith<RowT, ValT, XorOT, [...IdxTArr, never]>;
 
 type ReplaceBoardValWith<
 	BoardT extends GenericBoard,
 	ValT extends GetBoardAllowedVals<BoardT>,
 	XorOT extends XOrO,
-	AccBoard extends GenericBoard = GenericBoard,
-	IdxT extends 0 | 1 | 2 = 0,
+	// Do not allow numbers larger than 3, as a row can only have an index of 2
+	IdxTArr extends never[] = [],
 > =
-	BoardT extends [infer RowT, ...infer OtherRowsT] ?
-	RowT
-		AccBoard;
-
+	IdxTArr['length'] extends 3 ?
+	BoardT :
+	BoardT[IdxTArr['length']] extends GenericBoard[number] ?
+	ReplaceIdxWith<BoardT, IdxTArr['length'], ReplaceBoardRowWith<BoardT[IdxTArr['length']], ValT, XorOT>>
+	: ReplaceBoardValWith<BoardT, ValT, XorOT, [...IdxTArr, never]>;
 
 /**
  * 	ArrT extends [infer ItemT, ...infer RestT] ?
@@ -98,7 +82,7 @@ type ReplaceBoardValWith<
 
 type Prompt<BoardT extends GenericBoard, ValT extends AllowedGenericPromptVals> =
 	ValT extends GetBoardAllowedVals<BoardT> ?
-	BoardT
+	ReplaceBoardValWith<BoardT, ValT, "X">
 	: "You must input a valid number";
 
 const board = [
