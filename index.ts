@@ -7,6 +7,12 @@ type GenericBoard = [
 	[XOrO | "7", XOrO | "8", XOrO | "9"]
 ]
 
+type Replace<StrT extends string, FromT extends string, ToT extends string, Acc extends string = ""> = 
+	StrT extends `${infer CharOneT}${infer RestOfStrT}` ? CharOneT extends FromT ?
+	Replace<RestOfStrT, FromT, ToT, `${Acc}${ToT}`> :
+	Replace<RestOfStrT, FromT, ToT, `${Acc}${CharOneT}`> :
+	Acc;
+
 type ArrToStr<ArrT extends string[], AccT extends string = ""> =
 	ArrT extends [infer ItemT, ...infer RestT] ?
 	ItemT extends string ?
@@ -83,6 +89,54 @@ type FindValidBoardMove<
 	: never;
 
 ;
+
+type BoardWins = `
+
+***
+|||
+|||
+` | `
+
+|||
+***
+|||
+` | `
+
+|||
+|||
+***
+` | `
+
+*||
+*||
+*||
+` | `
+
+|*|
+|*|
+|*|
+` | `
+
+||*
+||*
+||*
+` | `
+
+*||
+|*|
+||*
+` | `
+
+||*
+|*|
+*||
+`
+
+/**
+ * `false` means no win
+ * `true` means win
+ */
+type CheckWin<BoardT extends GenericBoard, PlayerValT extends XOrO> = false;
 
 type Prompt<BoardT extends GenericBoard, ValT extends AllowedGenericPromptVals> =
 	ValT extends GetBoardAllowedVals<BoardT> ?
@@ -166,4 +220,6 @@ const egMorePlayedBoard = [
 ] satisfies GenericBoard;
 
 const h = "6" satisfies FindValidBoardMove<typeof egMorePlayedBoard>
+
+const asdc = "asdc" as Replace<"ASDF", "F", "C">
 // TESTS ARE DONE, GO HOME NOW
