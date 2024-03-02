@@ -133,18 +133,18 @@ type InnerCheckWin<BoardT extends GenericBoard, PlayerValT extends XOrO, Compute
 
 type CheckWin<BoardT extends GenericBoard, PlayerValT extends XOrO> =
 	PlayerValT extends "O" ?
-		"X" extends infer ComputerValT ?
-			ComputerValT extends XOrO ?
-				InnerCheckWin<BoardT, PlayerValT, ComputerValT> :
-			never :
-		never :
-	PlayerValT extends "X" ? 
-		"O" extends infer ComputerValT ?
-			ComputerValT extends XOrO ?
-				InnerCheckWin<BoardT, PlayerValT, ComputerValT> :
-			never :
-		never
-		: never;
+	"X" extends infer ComputerValT ?
+	ComputerValT extends XOrO ?
+	InnerCheckWin<BoardT, PlayerValT, ComputerValT> :
+	never :
+	never :
+	PlayerValT extends "X" ?
+	"O" extends infer ComputerValT ?
+	ComputerValT extends XOrO ?
+	InnerCheckWin<BoardT, PlayerValT, ComputerValT> :
+	never :
+	never
+	: never;
 
 type Prompt<BoardT extends GenericBoard, ValT extends AllowedGenericPromptVals> =
 	ValT extends GetBoardAllowedVals<BoardT> ?
@@ -152,7 +152,12 @@ type Prompt<BoardT extends GenericBoard, ValT extends AllowedGenericPromptVals> 
 	UserPlayedBoard extends GenericBoard ?
 	FindValidBoardMove<UserPlayedBoard> extends infer MoveComputerPlays ?
 	MoveComputerPlays extends GetBoardAllowedVals<UserPlayedBoard> ?
-	ReplaceBoardValWith<UserPlayedBoard, MoveComputerPlays, "O">
+	ReplaceBoardValWith<UserPlayedBoard, MoveComputerPlays, "O"> extends infer ComputerPlayedBoard ?
+	ComputerPlayedBoard extends GenericBoard ?
+	true extends CheckWin<ComputerPlayedBoard, "X"> ? "Player wins!" :
+	true extends CheckWin<ComputerPlayedBoard, "O"> ? "Computer wins!" :
+	ComputerPlayedBoard : never
+	: never
 	// Game is over: Calculate winner
 	: true extends CheckWin<UserPlayedBoard, "X"> ? "Player wins!" :
 	true extends CheckWin<UserPlayedBoard, "O"> ? "Computer wins!" :
@@ -165,9 +170,9 @@ type Prompt<BoardT extends GenericBoard, ValT extends AllowedGenericPromptVals> 
  * ---------------------------------------------------- GAME PLAY ------------------------------------ 
  */
 const board = [
-	["O", "O", "O"],
-	["O", "O", "O"],
-	["7", "O", "X"],
+	["1", "2", "3"],
+	["4", "5", "6"],
+	["7", "8", "9"],
 ] satisfies GenericBoard;
 
 type Board = typeof board;
@@ -243,5 +248,6 @@ type ComputerWinBoard = typeof computerWinBoard;
 
 const j = false satisfies CheckWin<ComputerWinBoard, "X">
 const k = true satisfies CheckWin<ComputerWinBoard, "O">
+const l = "Computer wins!" satisfies Prompt<ComputerWinBoard, "1">
 
 // TESTS ARE DONE, GO HOME NOW
