@@ -7,13 +7,31 @@ type GenericBoard = [
 	[XOrO | "7", XOrO | "8", XOrO | "9"]
 ]
 
-type JoinArrToStr<ArrT extends string[], AccT extends string = ""> = 
+type ArrToStr<ArrT extends string[], AccT extends string = ""> =
 	ArrT extends [infer ItemT, ...infer RestT] ?
-		ItemT extends string ? 
-			RestT extends string[] ?
-		JoinArrToStr<RestT, `${AccT}${ItemT}`> :
-		 AccT : AccT :
-	AccT; 
+	ItemT extends string ?
+	RestT extends string[] ?
+	ArrToStr<RestT, `${AccT}${ItemT}`> :
+	AccT : AccT :
+	AccT;
+
+type BoardToString<ArrArrT extends string[][], AccT extends string = ""> =
+	ArrArrT extends [infer ArrT, ...infer RestT] ?
+	ArrT extends string[] ?
+	RestT extends string[][] ?
+	BoardToString<RestT, ArrToStr<ArrT, `${AccT}\n`>> :
+	AccT : AccT :
+	AccT;
+
+// YOU WANT TESTS?! COME AND GET 
+const a = "123" satisfies ArrToStr<["1", "2", "3"]>
+const egBoard = [
+["1", "2", "3"],
+["4", "5", "6"],
+["7", "8", "9"]
+] satisfies GenericBoard;
+const b = "\n123\n456\n789" satisfies BoardToString<typeof egBoard>
+// TESTS ARE DONE, GO HOME NOW
 
 type ValueOfKey<T extends object> = T[keyof T]
 
@@ -30,6 +48,7 @@ const board = [
 type Board = typeof board;
 
 /**
+ * @example
  * ["1", "2", "3"],
  * ["4", "5", "6"],
  * ["X", "8", "9"]
