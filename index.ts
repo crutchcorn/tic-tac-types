@@ -129,17 +129,7 @@ type BoardWins = `
  * `true` means win
  */
 type InnerCheckWin<BoardT extends GenericBoard, PlayerValT extends XOrO, ComputerValT extends XOrO> =
-	Replace<BoardToString<BoardT>, ComputerValT | UserInput, "|"> extends Replace<BoardWins, "*", PlayerValT> ? true : false;
-
-const board2 = [
-	["1", "2", "3"],
-	["O", "O", "O"],
-	["7", "O", "X"],
-] satisfies GenericBoard;
-
-type Board2 = typeof board2;
-
-type BB = InnerCheckWin<Board2, "O", "X">
+	Replace<BoardToString<BoardT>, ComputerValT | UserInput, `${string}`> extends Replace<Replace<BoardWins, "*", PlayerValT>, "|", `${string}`> ? true : false;
 
 type CheckWin<BoardT extends GenericBoard, PlayerValT extends XOrO> =
 	PlayerValT extends "O" ? "X" extends infer ComputerValT ? ComputerValT extends XOrO ?
@@ -233,5 +223,17 @@ const egMorePlayedBoard = [
 
 const h = "6" satisfies FindValidBoardMove<typeof egMorePlayedBoard>
 
-const asdc = "asdc" as Replace<"ASDF", "F", "C">
+const i = "asdc" as Replace<"ASDF", "F", "C">
+
+const computerWinBoard = [
+	["1", "2", "3"],
+	["O", "O", "O"],
+	["7", "O", "X"],
+] satisfies GenericBoard;
+
+type ComputerWinBoard = typeof computerWinBoard;
+
+const j = false satisfies InnerCheckWin<ComputerWinBoard, "X", "O">
+const k = true satisfies InnerCheckWin<ComputerWinBoard, "O", "X">
+
 // TESTS ARE DONE, GO HOME NOW
