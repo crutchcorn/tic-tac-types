@@ -1,4 +1,4 @@
-type UserInput = `${number}`
+type UserInput = `${0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9}`
 type XOrO = "X" | "O";
 
 type GenericBoard = [
@@ -86,7 +86,15 @@ type FindValidBoardMove<
 
 type Prompt<BoardT extends GenericBoard, ValT extends AllowedGenericPromptVals> =
 	ValT extends GetBoardAllowedVals<BoardT> ?
-	ReplaceBoardValWith<BoardT, ValT, "X">
+	ReplaceBoardValWith<BoardT, ValT, "X"> extends infer UserPlayedBoard ?
+	UserPlayedBoard extends GenericBoard ?
+	FindValidBoardMove<UserPlayedBoard> extends infer MoveComputerPlays ?
+	MoveComputerPlays extends GetBoardAllowedVals<UserPlayedBoard> ?
+	ReplaceBoardValWith<UserPlayedBoard, MoveComputerPlays, "O">
+	// TODO: Calculate winner
+	: "Game has ended"
+	: never : never
+	: never
 	: "You must input a valid number";
 
 /**
@@ -125,7 +133,7 @@ type Board = typeof board;
  * ["X", "8", "9"]
 */
 type TurnOneBoard = Prompt<Board, "7">
-
+type TurnTwoBoard = Prompt<TurnOneBoard, "2">
 
 /**
  * ---------------------------------------------------- TESTS ------------------------------------ 
