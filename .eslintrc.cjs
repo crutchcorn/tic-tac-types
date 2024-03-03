@@ -8,8 +8,5 @@ module.exports = {
     parserOptions: {
         tsconfigRootDir: __dirname,
         project: true,
-    },
-    rules: {
-        "@typescript-eslint/no-unused-vars": "off"
     }
 };

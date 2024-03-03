@@ -1,3 +1,6 @@
+/**
+ * All utilities that don't relate to this specific application
+ */
 export type Replace<
   StrT extends string,
   FromT extends string,
