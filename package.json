@@ -1,15 +1,23 @@
 {
   "name": "tic-tac-types",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "description": "An implementation of Tic-Tac-Toe written using only TypeScript types",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "format": "eslint . --fix",
+    "lint": "eslint .",
+    "test": "vitest --typecheck"
   },
-  "dependencies": {
-    "typescript": "5.3.3"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.2.5",
+    "typescript": "5.3.3",
+    "vitest": "^1.3.1"
+  }
 }
