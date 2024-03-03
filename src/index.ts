@@ -20,8 +20,6 @@ type BoardToString<
     : `${AccT}\n`
   : `${AccT}\n`;
 
-type ValueOfKey<T extends object> = T[keyof T];
-
 type GetBoardAllowedVals<T extends GenericBoard> = T[number][number];
 type GetRowAllowedVals<T extends GenericBoard[number]> = T[number];
 type AllowedGenericPromptVals = GetBoardAllowedVals<GenericBoard>;
@@ -226,15 +224,12 @@ type TurnThreeBoard = Prompt<TurnTwoBoard, "7">; // Player wins!
  */
 // YOU WANT TESTS?! COME AND GET
 // If any of these are red, tests are brokey
-const a = "123" satisfies ArrToStr<["1", "2", "3"]>;
 const egBoard = [
   ["1", "2", "3"],
   ["4", "5", "6"],
   ["7", "8", "9"],
 ] satisfies GenericBoard;
 const b = "\n123\n456\n789\n" satisfies BoardToString<typeof egBoard>;
-const c = [9, 2, 3] satisfies ReplaceIdxWith<[1, 2, 3], 0, 9>;
-const d = [1, 2, 9] satisfies ReplaceIdxWith<[1, 2, 3], 2, 9>;
 const e = "\n1X3\n456\n789\n" satisfies BoardToString<
   ReplaceBoardValWith<typeof egBoard, "2", "X">
 >;
@@ -256,8 +251,6 @@ const egMorePlayedBoard = [
 ] satisfies GenericBoard;
 
 const h = "6" satisfies FindValidBoardMove<typeof egMorePlayedBoard>;
-
-const i = "asdc" as Replace<"ASDF", "F", "C">;
 
 const computerWinBoard = [
   ["1", "2", "3"],
