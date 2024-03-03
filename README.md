@@ -5,6 +5,15 @@
 
 ---
 
+<div align="center">
+
+[![Test Status](https://img.shields.io/github/actions/workflow/status/crutchcorn/tic-tac-types/test.yml?branch=main&label=tests)](https://github.com/crutchcorn/tic-tac-types/actions/workflows/test.yml?query=branch%3Amain)
+[![license](https://badgen.now.sh/badge/license/MIT)](./LICENSE.md)
+
+</div>
+
+---
+
 There is zero JavaScript to play this game of Tic-Tac-Toe, only TypeScript type definitions. You'll notice everything in `src` is written as `.d.ts` files to prove this to you.
 
 There are also tests to validate the functionality of the games' components.
